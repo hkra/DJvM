@@ -17,7 +17,9 @@
 #define CONSTANT_UTF8				1
 #define CONSTANT_METHODHANDLE		15
 #define CONSTANT_METHODTYPE			16
-#define CONSTANT_IINVOKEDYNAMIC		18
+#define CONSTANT_INVOKEDYNAMIC		18
+
+#pragma pack(push, 1)
 
 typedef struct cp_info_tag {
     u1 tag;
@@ -29,6 +31,22 @@ typedef struct CONSTANT_Class_info_tag {
     u1 tag;
     u2 name_index;
 } CONSTANT_Class_info;
+
+typedef struct CONSTANT_String_info_tag {
+    u1 tag;
+    u2 string_index;
+} CONSTANT_String_info;
+
+typedef struct CONSTANT_MethodType_info_tag {
+    u1 tag;
+    u2 descriptor_index;
+} CONSTANT_MethodType_info;
+
+typedef struct CONSTANT_MethodHandle_info_tag {
+    u1 tag;
+    u1 reference_kind;
+    u2 reference_index;
+} CONSTANT_MethodHandle_info;
 
 typedef struct CONSTANT_Fieldref_info_tag {
     u1 tag;
@@ -48,10 +66,17 @@ typedef struct CONSTANT_InterfaceMethodref_info_tag {
     u2 name_and_type_index;
 } CONSTANT_InterfaceMethodref_info;
 
-typedef struct CONSTANT_String_info_tag {
+typedef struct CONSTANT_NameAndType_info_tag {
     u1 tag;
-    u2 string_index;
-} CONSTANT_String_info;
+    u2 name_index;
+    u2 descriptor_index;
+} CONSTANT_NameAndType_info;
+
+typedef struct CONSTANT_InvokeDynamic_info_tag {
+    u1 tag;
+    u2 bootstrap_method_attr_index;
+    u2 name_and_type_index;
+} CONSTANT_InvokeDynamic_info;
 
 typedef struct CONSTANT_Integer_info_tag {
     u1 tag;
@@ -85,33 +110,14 @@ typedef struct CONSTANT_Double_info_tag {
     } val;
 } CONSTANT_Double_info;
 
-typedef struct CONSTANT_NameAndType_info_tag {
-    u1 tag;
-    u2 name_index;
-    u2 descriptor_index;
-} CONSTANT_NameAndType_info;
-
 typedef struct CONSTANT_Utf8_info_tag {
     u1 tag;
     u2 length;
     u1* bytes;	/*[length] */
 } CONSTANT_Utf8_info;
 
-typedef struct CONSTANT_MethodHandle_info_tag {
-    u1 tag;
-    u1 reference_kind;
-    u2 reference_index;
-} CONSTANT_MethodHandle_info;
+#pragma pack(pop)
 
-typedef struct CONSTANT_MethodType_info_tag {
-    u1 tag;
-    u2 descriptor_index;
-} CONSTANT_MethodType_info;
-
-typedef struct CONSTANT_InvokeDynamic_info_tag {
-    u1 tag;
-    u2 bootstrap_method_attr_index;
-    u2 name_and_type_index;
-} CONSTANT_InvokeDynamic_info;
+extern int load_constant_pool(FILE * stream, unsigned cpool_count, cp_info** cpool);
 
 #endif

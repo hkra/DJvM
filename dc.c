@@ -62,59 +62,6 @@ typedef struct class_file_tag {
     attribute_info* attributes;		/*[attributes_count]*/
 } ClassFile;
 
-int read_u4(FILE * stream, void * ptr) {
-	int nread = fread(ptr, sizeof(u4), 1, stream);
-	u4 swapc = *(u4*)ptr;
-	swapc = (swapc & 0x000000FF) << 24 |
-			(swapc & 0x0000FF00) << 8 |
-			(swapc & 0x00FF0000) >> 8 |
-			(swapc & 0xFF000000) >> 24;
-	*(u4*)ptr = swapc;
-	return nread;
-}
-
-int read_u2(FILE * stream, void * ptr) {
-	int nread = fread(ptr, sizeof(u2), 1, stream);
-	u2 swapc = *(u2*)ptr;
-	*(u2*)ptr = (swapc >> 8) | (swapc << 8);
-	return nread;
-}
-
-int read_u1(FILE * stream, void * ptr) {
-	return fread(ptr, sizeof(u1), 1, stream);
-}
-
-int read_constant_pool(FILE * stream, ClassFile * const cfd) {
-	int i = 0, cpcount = cfd->constant_pool_count - 1;
-	
-	if (NULL == (cfd->constant_pool = malloc(sizeof(cp_info*) * cpcount)))
-		return FNERROR;
-		
-	for (; i < cpcount; ++i) {
-		cfd->constant_pool[i].info = (u1*)malloc(sizeof(cp_info));
-		read_u1(stream, &cfd->constant_pool[i].tag);
-		
-		switch (cfd->constant_pool[i].tag) {
-			case CONSTANT_CLASS:
-			case CONSTANT_FIELDREF:
-			case CONSTANT_METHODREF:
-			case CONSTANT_INTERFACEMETHODREF:
-			case CONSTANT_STRING:
-			case CONSTANT_INTEGER:
-			case CONSTANT_FLOAT:
-			case CONSTANT_LONG:
-			case CONSTANT_DOUBLE:
-			case CONSTANT_NAMEANDTYPE:
-			case CONSTANT_UTF8:
-			case CONSTANT_METHODHANDLE:
-			case CONSTANT_METHODTYPE:
-			case CONSTANT_IINVOKEDYNAMIC:
-			default: return FNERROR;
-		}
-	}
-	return FNOK;
-}
-
 void free_class_memory(ClassFile * cfd) {
 	/* for now do nothing because we just exit the process after run :/ */
 }
@@ -155,11 +102,10 @@ int main(int argc, char * argv[]) {
 				read_u2(class_file_handle, &class_file_data.constant_pool_count);
 				
 	/* TODO: check final size of all stuff read. If not right, abort */
+	load_constant_pool(class_file_handle, class_file_data.constant_pool_count, &class_file_data.constant_pool);
 	
 	print_class_info(&class_file_data);
 	
-	
-
 releasekill:
 	fclose(class_file_handle);
 	free_class_memory(&class_file_data);
