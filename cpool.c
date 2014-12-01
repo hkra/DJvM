@@ -102,3 +102,8 @@ int load_constant_pool(FILE * stream, unsigned cpool_count, cp_info** cpool) {
 	}
 	return FNOK;
 }
+
+
+void free_constant_pool(unsigned cpool_count, cp_info** cpool) {
+
+}

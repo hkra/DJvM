@@ -119,5 +119,6 @@ typedef struct CONSTANT_Utf8_info_tag {
 #pragma pack(pop)
 
 extern int load_constant_pool(FILE * stream, unsigned cpool_count, cp_info** cpool);
+extern void free_constant_pool(unsigned cpool_count, cp_info** cpool);
 
 #endif
