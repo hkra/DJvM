@@ -53,7 +53,7 @@ typedef struct class_file_tag {
     u2             this_class;
     u2             super_class;
     u2             interfaces_count;
-    u2             interfaces; 		/*[interfaces_count]*/
+    u2*            interfaces; 		/*[interfaces_count]*/
     u2             fields_count;
     field_info*    fields;			/*[fields_count]*/
     u2             methods_count;
@@ -72,8 +72,7 @@ void print_class_info(const ClassFile * const cfd) {
 }
 
 int main(int argc, char * argv[]) {
-	int error = 0;
-	int readtotal = 0;
+	int error = 0, i;
 	FILE* class_file_handle = NULL;
 	ClassFile class_file_data;
 
@@ -97,13 +96,32 @@ int main(int argc, char * argv[]) {
 		goto releasekill;
 	}
 	
-	readtotal = read_u2(class_file_handle, &class_file_data.minor_version) +
-				read_u2(class_file_handle, &class_file_data.major_version) +
-				read_u2(class_file_handle, &class_file_data.constant_pool_count);
+	read_u2(class_file_handle, &class_file_data.minor_version);
+	read_u2(class_file_handle, &class_file_data.major_version);
+	read_u2(class_file_handle, &class_file_data.constant_pool_count);
 				
 	/* TODO: check final size of all stuff read. If not right, abort */
 	load_constant_pool(class_file_handle, class_file_data.constant_pool_count, &class_file_data.constant_pool);
 	
+	read_u2(class_file_handle, &class_file_data.access_flags);
+	read_u2(class_file_handle, &class_file_data.this_class);
+	read_u2(class_file_handle, &class_file_data.super_class);
+	read_u2(class_file_handle, &class_file_data.interfaces_count);
+				 
+	/* Read interface list */
+	if (NULL == (class_file_data.interfaces = malloc(sizeof(u2) * class_file_data.interfaces_count))) {
+		/* TODOL free constant pool memory */
+		fprintf(stderr, "Error: malloc failure (%s, %d)\n", __FILE__, __LINE__);
+		error = 1;
+		goto releasekill;
+	}
+	
+	for (i = 0; i < class_file_data.interfaces_count; ++i) {
+		read_u2(class_file_handle, &class_file_data.interfaces[i]);
+	}
+	
+	read_u2(class_file_handle, &class_file_data.fields_count);
+				 
 	print_class_info(&class_file_data);
 	
 releasekill:
