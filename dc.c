@@ -72,6 +72,33 @@ void print_class_info(const ClassFile * const cfd) {
 	printf("Constant pool count: %hu\n", cfd->constant_pool_count);
 }
 
+/* TODO error handling */
+void load_field_info(FILE* class_file_handle, ClassFile * const class_file_data) {
+	int i, j;
+	read_u2(class_file_handle, &class_file_data.fields_count);
+	
+	if (class_file_data.fields_count > 0)
+		class_file_data.fields = malloc(sizeof(field_info) * class_file_data.fields_count);
+	
+	for (i = 0; i < class_file_data.fields_count; ++i) {
+		read_u2(class_file_handle, &class_file_data.fields[i].access_flags);
+		read_u2(class_file_handle, &class_file_data.fields[i].name_index);
+		read_u2(class_file_handle, &class_file_data.fields[i].descriptor_index);
+		read_u2(class_file_handle, &class_file_data.fields[i].attributes_count);
+		
+		if (class_file_data.fields[i].attributes_count > 0)
+			class_file_data.fields[i].attributes = malloc(sizeof(attribute_info) * class_file_data.fields[i].attributes_count);
+			
+		for (j = 0; j < class_file_data.fields[i].attributes_count; ++j) {
+			read_u2(class_file_handle, class_file_data.fields[i].attributes[i].attribute_name_index);
+			read_u4(class_file_handle, class_file_data.fields[i].attributes[i].attribute_length);
+			read_u1_string(class_file_handle, 
+				class_file_data.fields[i].attributes[i].info,
+				class_file_data.fields[i].attributes[i].attribute_length);
+		}
+	}
+}
+
 int main(int argc, char * argv[]) {
 	int error = 0, i;
 	FILE* class_file_handle = NULL;
@@ -121,7 +148,7 @@ int main(int argc, char * argv[]) {
 		read_u2(class_file_handle, &class_file_data.interfaces[i]);
 	}
 	
-	read_u2(class_file_handle, &class_file_data.fields_count);
+	load_field_info(class_file_handle, class_file_data);
 				 
 	print_class_info(&class_file_data);
 	

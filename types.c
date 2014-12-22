@@ -1,8 +1,8 @@
-//
-//	Functions relating to types. This is intended to run on x86 machines, so endian
-//	conversions are done as necessary...okay, I admit it. I just wrote this because
-//	I want a commit for today :(
-//
+/*
+ *	Functions relating to types. This is intended to run on x86 machines, so endian
+ *	conversions are done as necessary...okay, I admit it. I just wrote this because
+ *	I want a commit for today :(
+ */
 
 #include "types.h"
 
