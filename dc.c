@@ -144,6 +144,7 @@ int main(int argc, char * argv[]) {
 		goto releasekill;
 	}
 	
+	/* Fields */
 	for (i = 0; i < class_file_data.interfaces_count; ++i) {
 		read_u2(class_file_handle, &class_file_data.interfaces[i]);
 	}
