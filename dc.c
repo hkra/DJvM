@@ -79,6 +79,8 @@ void load_field_info(FILE* class_file_handle, ClassFile * const class_file_data)
 	
 	if (class_file_data->fields_count > 0)
 		class_file_data->fields = malloc(sizeof(field_info) * class_file_data->fields_count);
+	else
+		class_file_data->fields = NULL;
 	
 	for (i = 0; i < class_file_data->fields_count; ++i) {
 		read_u2(class_file_handle, &class_file_data->fields[i].access_flags);
@@ -96,6 +98,22 @@ void load_field_info(FILE* class_file_handle, ClassFile * const class_file_data)
 				class_file_data->fields[i].attributes[i].info,
 				class_file_data->fields[i].attributes[i].attribute_length);
 		}
+	}
+}
+
+void load_interfaces_info(FILE* class_file_handle, ClassFile * const class_file_data) {
+	int i;
+	read_u2(class_file_handle, &class_file_data->interfaces_count);
+
+	/* TODO OMG error checking and release stuff if failed */
+	if (class_file_data->interfaces_count) {
+		if (NULL == (class_file_data->interfaces = malloc(sizeof(u2) * class_file_data->interfaces_count)))
+			fprintf(stderr, "Error: malloc failure (%s, %d)\n", __FILE__, __LINE__);
+	
+		for (i = 0; i < class_file_data->interfaces_count; ++i)
+			read_u2(class_file_handle, &class_file_data->interfaces[i]);
+	} else {
+		class_file_data->interfaces = NULL;
 	}
 }
 
@@ -134,21 +152,8 @@ int main(int argc, char * argv[]) {
 	read_u2(class_file_handle, &class_file_data.access_flags);
 	read_u2(class_file_handle, &class_file_data.this_class);
 	read_u2(class_file_handle, &class_file_data.super_class);
-	read_u2(class_file_handle, &class_file_data.interfaces_count);
-				 
-	/* Read interface list */
-	if (NULL == (class_file_data.interfaces = malloc(sizeof(u2) * class_file_data.interfaces_count))) {
-		/* TODOL free constant pool memory */
-		fprintf(stderr, "Error: malloc failure (%s, %d)\n", __FILE__, __LINE__);
-		error = 1;
-		goto releasekill;
-	}
 	
-	/* Fields */
-	for (i = 0; i < class_file_data.interfaces_count; ++i) {
-		read_u2(class_file_handle, &class_file_data.interfaces[i]);
-	}
-	
+	load_interfaces_info(class_file_handle, &class_file_data);
 	load_field_info(class_file_handle, &class_file_data);
 				 
 	print_class_info(&class_file_data);
