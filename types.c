@@ -8,12 +8,12 @@
 
 int read_u4(FILE * stream, void * ptr) {
 	int nread = fread(ptr, sizeof(u4), 1, stream);
-	u4 swapc = *(u4*)ptr;
+/*	u4 swapc = *(u4*)ptr;
 	swapc = (swapc & 0x000000FF) << 24 |
 			(swapc & 0x0000FF00) << 8 |
 			(swapc & 0x00FF0000) >> 8 |
 			(swapc & 0xFF000000) >> 24;
-	*(u4*)ptr = swapc;
+	*(u4*)ptr = swapc;*/
 	return nread;
 }
 

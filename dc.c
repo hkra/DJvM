@@ -5,7 +5,7 @@
 #include "types.h"
 #include "cpool.h"
 
-#define MAGIC_NUMBER	0xCAFEBABE
+#define MAGIC_NUMBER	0xBEBAFECA	/* CAFEBABE little-endian style */
 
 /* Access flags */
 #define ACC_PUBLIC		0x0001	/* Declared public; may be accessed from outside its package. */
